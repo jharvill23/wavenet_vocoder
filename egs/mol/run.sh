@@ -1,14 +1,19 @@
 #!/bin/bash
 
+# Using your conda environment
+# https://github.com/conda/conda/issues/7980
+source ~/anaconda3/etc/profile.d/conda.sh
+conda activate wavenet_voc
+
 script_dir=$(cd $(dirname ${BASH_SOURCE:-$0}); pwd)
 VOC_DIR=$script_dir/../../
 
 # Directory that contains all wav files
 # **CHANGE** this to your database path
-db_root=~/data/LJSpeech-1.1/wavs/
+db_root='/home/john/datasets/VCTK-Corpus/allwav'
 
-spk="lj"
-dumpdir=dump
+spk="vctk"
+dumpdir='/home/john/Documents/School/Summer_2020/Research/wavenet_vocoder_data' # change this to where you want to put the files
 
 # train/dev/eval split
 dev_size=10
@@ -20,12 +25,12 @@ limit=1000000
 # waveform global gain normalization scale
 global_gain_scale=0.55
 
-stage=0
-stop_stage=0
+stage=2
+stop_stage=2
 
 # Hyper parameters (.json)
 # **CHANGE** here to your own hparams
-hparams=conf/mol_wavenet_demo.json
+hparams=conf/mol_wavenet_demo.json  # I changed this
 
 # Batch size at inference time.
 inference_batch_size=32
@@ -35,7 +40,7 @@ eval_checkpoint=
 eval_max_num_utt=1000000
 
 # exp tag
-tag="" # tag for managing experiments.
+tag="first_trial" # tag for managing experiments.
 
 . $VOC_DIR/utils/parse_options.sh || exit 1;
 
@@ -79,7 +84,7 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     echo "stage 1: Feature Generation"
-    for s in ${datasets[@]};
+    for s in "${datasets[@]}";  # this was for s in ${datasets[@]}; but that's problematic
     do
       python $VOC_DIR/preprocess.py wavallin $data_root/$s ${dump_org_dir}/$s \
         --hparams="global_gain_scale=${global_gain_scale}" --preset=$hparams
@@ -91,7 +96,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     rm -f train_list.txt
 
     # Apply normalization
-    for s in ${datasets[@]};
+    for s in "${datasets[@]}";  # this was for s in ${datasets[@]}; but that's problematic
     do
       python $VOC_DIR/preprocess_normalize.py ${dump_org_dir}/$s $dump_norm_dir/$s \
         $dump_org_dir/meanvar.joblib

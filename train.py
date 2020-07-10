@@ -1034,6 +1034,11 @@ def get_data_loaders(dump_root, speaker_id, test_shuffle=True):
 
 if __name__ == "__main__":
     args = docopt(__doc__)
+    # change these to just manually be the right things with the args
+    args["--preset"] = 'egs/mol/conf/mol_wavenet_demo.json'
+    args["--checkpoint-dir"] = "/home/john/Documents/School/Summer_2020/Research/wavenet_vocoder/egs/mol/exp/vctk_train_no_dev_first_trial"
+    args["--dump-root"] = "/home/john/Documents/School/Summer_2020/Research/wavenet_vocoder_data/vctk/logmelspectrogram/norm"
+    args["--log-event-path"] = "tensorboard/vctk_train_no_dev_first_trial"
     print("Command line args:\n", args)
     checkpoint_dir = args["--checkpoint-dir"]
     checkpoint_path = args["--checkpoint"]
@@ -1071,7 +1076,7 @@ if __name__ == "__main__":
 
     maybe_set_epochs_based_on_max_steps(hparams, len(data_loaders["train_no_dev"]))
 
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device = torch.device("cuda:0" if use_cuda else "cpu")  # was "cuda"
 
     # Model
     model = build_model().to(device)
